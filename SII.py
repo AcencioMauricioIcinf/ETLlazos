@@ -20,20 +20,35 @@ nombres_archivos = next(os.walk(nombres_carpetas[0]))[2]
 
 
 # Definición de función para la extracción de datos
-#
+# Remoción de la primera línea, más líneas sin contenido
 def lectura(ruta):
     with open(ruta, 'r') as archivo:
+        # Remoción de carácteres vacíos
         revise1 = [line.replace('\0', '').replace('\r', '').replace('\n', '') for line in archivo]
+        # Remoción de líneas sin contenido, junto a la 1ºa línea, que contiene carácteres especiales
         revise = [line for line in revise1[1:] if line.strip()]
     return revise
 
 
-# Extraer los datos por cada archivo
+# Agregar columna de nombres a la estructura de datos
+def nombres(datoSN, nombre):
+    return ["%s,%s" % (nombre, dato) for dato in datoSN]
 
-for nombre in nombres_archivos:
-    print nombre
-    revise = []
-    for carpeta in nombres_carpetas:
-        ruta = carpeta + '/' + nombre
-        revise.extend(lectura(ruta))
-    print revise
+
+# Extraer los datos por cada archivo
+for archivo in nombres_archivos:
+    print archivo
+    first = True
+    datos = []
+    for nombre in nombres_carpetas:
+        ruta = nombre + '/' + archivo
+        datoSN = lectura(ruta)
+        # Deja la cabecera del csv en la primera pasada, la retira desde entonces
+        if first:
+            datoSN[0] = "%s,%s" % (nombre, datoSN[0])
+            first = False
+        else:
+            datoSN.remove(datoSN[0])
+        datos.extend(datoSN)
+    for dato in csv.reader(datos):
+        print dato
