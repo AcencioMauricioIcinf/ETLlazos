@@ -11,22 +11,29 @@ import os, csv
 # nombre y archivos correspondientes a cada cliente
 
 # Listado de carpetas de clientes
-
 nombres_carpetas = next(os.walk("."))[1]
 
 # Nombres de archivos por carpeta
 # (Extrae los nombres de los archivos pedidos desde una de las carpetas, esto suponiendo que los nombres
 # son todos consistentes y los mismos en cada carpeta)
-
 nombres_archivos = next(os.walk(nombres_carpetas[0]))[2]
+
+
+# Definición de función para la extracción de datos
+#
+def lectura(ruta):
+    with open(ruta, 'r') as archivo:
+        revise1 = [line.replace('\0', '').replace('\r', '').replace('\n', '') for line in archivo]
+        revise = [line for line in revise1[1:] if line.strip()]
+    return revise
+
 
 # Extraer los datos por cada archivo
 
 for nombre in nombres_archivos:
+    print nombre
+    revise = []
     for carpeta in nombres_carpetas:
-		ruta = carpeta + '/' + nombre
-		print ruta
-		with open(ruta, mode='r') as archivo:
-			csv_reader = csv.reader(archivo)
-			for row in csv_reader:
-				print row
+        ruta = carpeta + '/' + nombre
+        revise.extend(lectura(ruta))
+    print revise
