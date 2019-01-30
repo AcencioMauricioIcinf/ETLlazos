@@ -30,25 +30,31 @@ def lectura(ruta):
     return revise
 
 
-# Agregar columna de nombres a la estructura de datos
+# Agregar columna de nombres a la cabecera de la estructura de datos
 def nombres(datoSN, nombre):
     return ["%s,%s" % (nombre, dato) for dato in datoSN]
 
 
 # Extraer los datos por cada archivo
 for archivo in nombres_archivos:
-    print archivo
     first = True
     datos = []
+    cabecera = ""
     for nombre in nombres_carpetas:
         ruta = nombre + '/' + archivo
         datoSN = lectura(ruta)
-        # Deja la cabecera del csv en la primera pasada, la retira desde entonces
+        # Extrae la cabecera del csv en la primera pasada
         if first:
-            datoSN[0] = "%s,%s" % (nombre, datoSN[0])
+            cabecera = "%s,%s" % ("Cliente", datoSN[0])
             first = False
-        else:
-            datoSN.remove(datoSN[0])
+        # Remueve la cabecera
+        datoSN.remove(datoSN[0])
+        # Agrega los nombres
+        datoSN = nombres(datoSN, nombre)
         datos.extend(datoSN)
-    for dato in csv.reader(datos):
-        print dato
+    with open("test_" + archivo, 'w') as destino:
+        escritor = csv.writer(destino, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        # Agrega la cabecera al inicio
+        escritor.writerow(cabecera.split(","))
+        for dato in datos:
+            escritor.writerow(dato.split(","))
