@@ -52,7 +52,7 @@ for archivo in nombres_archivos:
         # Agrega los nombres
         datoSN = nombres(datoSN, nombre)
         datos.extend(datoSN)
-    with open("test_" + archivo, 'w') as destino:
+    with open(archivo, 'w') as destino:
         escritor = csv.writer(destino, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         # Agrega la cabecera al inicio
         escritor.writerow(cabecera.split(","))
