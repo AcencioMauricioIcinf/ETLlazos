@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, csv
+import os
 from sys import getsizeof
 from time import time
 
@@ -41,15 +41,13 @@ def lectura(ruta):
         # Remoción de carácteres vacíos
         revise1 = [line.replace('\0', '').replace('\r', '').replace('\n', '') for line in archivo]
         # Remoción de líneas sin contenido, junto a la 1ºa línea, que contiene carácteres especiales
-        revise = [line.split(",") for line in revise1[1:] if line.strip()]
+        revise = [line for line in revise1[1:] if line.strip()]
     return revise
 
 
 # Agregar columna de nombres a la cabecera de la estructura de datos
 def nombres(datoSN, nombre):
-    for dato in datoSN:
-        dato.insert(0, nombre)
-    return datoSN
+    return ["%s,%s" % (nombre, dato) for dato in datoSN]
 
 
 # Extraer los datos por cada archivo
@@ -57,7 +55,7 @@ if medirTiempo:
     start = time()
 if medirMemoria:
     print "Memoria en bytes:"
-    print "Lista principal; Suma de listas;  Suma de textos"
+    print "Lista principal; Suma de textos"
 for archivo in nombres_archivos:
     first = True
     datos = []
@@ -67,8 +65,7 @@ for archivo in nombres_archivos:
         datoSN = lectura(ruta)
         # Extrae la cabecera del csv en la primera pasada
         if first:
-            cabecera = datoSN[0]
-            cabecera.insert(0, "Cliente")
+            cabecera = "%s,%s" % ("Cliente", datoSN[0])
             first = False
         # Remueve la cabecera
         datoSN.remove(datoSN[0])
@@ -76,14 +73,10 @@ for archivo in nombres_archivos:
         datoSN = nombres(datoSN, nombre)
         datos.extend(datoSN)
     if medirMemoria:
-        print '%-16s %-16s %s' % (getsizeof(datos), sum(getsizeof(dato) for dato in datos),
-                                  sum(sum(getsizeof(dato1) for dato1 in dato) for dato in datos))
-    with open('CSV_' + archivo, 'w') as destino:
-        escritor = csv.writer(destino, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        # Agrega la cabecera al inicio
-        escritor.writerow(cabecera)
-        for dato in datos:
-            escritor.writerow(dato)
+        print '%-16s %s' % (getsizeof(datos), sum(getsizeof(dato) for dato in datos))
+    with open('NL_' + archivo, 'w') as destino:
+        destino.write(cabecera + '\n')
+        destino.write('\n'.join(datos))
 if medirTiempo:
     stop = time()
     print 'Tiempo transcurrido: %f ms' % ((stop - start) * 1000)
